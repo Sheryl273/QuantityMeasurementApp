@@ -1,9 +1,8 @@
 package com.apps.quantitymeasurement;
 
-public class QuantityMeasurementApp6 {
+public class QuantityMeasurementApp7 {
 
     public enum LengthUnit {
-
         FEET(12.0),
         INCHES(1.0),
         YARDS(36.0),
@@ -31,7 +30,6 @@ public class QuantityMeasurementApp6 {
         private static final double EPSILON = 0.000001;
 
         public QuantityLength(double value, LengthUnit unit) {
-
             if (!Double.isFinite(value))
                 throw new IllegalArgumentException("Invalid value");
 
@@ -42,41 +40,12 @@ public class QuantityMeasurementApp6 {
             this.unit = unit;
         }
 
-        public double getValue() {
-            return value;
-        }
-
-        public LengthUnit getUnit() {
-            return unit;
-        }
-
         private double inBaseUnit() {
             return unit.toBase(value);
         }
 
-        public QuantityLength convertTo(LengthUnit targetUnit) {
-
-            if (targetUnit == null)
-                throw new IllegalArgumentException("Target unit cannot be null");
-
-            double converted =
-                    targetUnit.fromBase(this.inBaseUnit());
-
-            return new QuantityLength(converted, targetUnit);
-        }
-
         public QuantityLength add(QuantityLength other) {
-
-            if (other == null)
-                throw new IllegalArgumentException("Second operand cannot be null");
-
-            double totalBase =
-                    this.inBaseUnit() + other.inBaseUnit();
-
-            double resultValue =
-                    this.unit.fromBase(totalBase);
-
-            return new QuantityLength(resultValue, this.unit);
+            return add(other, this.unit);
         }
 
         public QuantityLength add(
@@ -92,10 +61,10 @@ public class QuantityMeasurementApp6 {
             double totalBase =
                     this.inBaseUnit() + other.inBaseUnit();
 
-            double resultValue =
+            double result =
                     targetUnit.fromBase(totalBase);
 
-            return new QuantityLength(resultValue, targetUnit);
+            return new QuantityLength(result, targetUnit);
         }
 
         @Override
@@ -122,60 +91,30 @@ public class QuantityMeasurementApp6 {
 
     public static void main(String[] args) {
 
-        QuantityLength first =
+        QuantityLength a =
                 new QuantityLength(1.0, LengthUnit.FEET);
 
-        QuantityLength second =
+        QuantityLength b =
                 new QuantityLength(12.0, LengthUnit.INCHES);
 
-        System.out.println(
-                "Input: add(" + first + ", " + second + ")"
-        );
+        System.out.println(a.add(b, LengthUnit.FEET));
+        System.out.println(a.add(b, LengthUnit.INCHES));
+        System.out.println(a.add(b, LengthUnit.YARDS));
 
-        System.out.println(
-                "Output: " + first.add(second)
-        );
-
-        QuantityLength third =
-                new QuantityLength(12.0, LengthUnit.INCHES);
-
-        QuantityLength fourth =
-                new QuantityLength(1.0, LengthUnit.FEET);
-
-        System.out.println(
-                "Input: add(" + third + ", " + fourth + ")"
-        );
-
-        System.out.println(
-                "Output: " + third.add(fourth)
-        );
-
-        QuantityLength fifth =
+        QuantityLength c =
                 new QuantityLength(1.0, LengthUnit.YARDS);
 
-        QuantityLength sixth =
+        QuantityLength d =
                 new QuantityLength(3.0, LengthUnit.FEET);
 
-        System.out.println(
-                "Input: add(" + fifth + ", " + sixth + ")"
-        );
+        System.out.println(c.add(d, LengthUnit.YARDS));
 
-        System.out.println(
-                "Output: " + fifth.add(sixth)
-        );
-
-        QuantityLength seventh =
+        QuantityLength e =
                 new QuantityLength(2.54, LengthUnit.CENTIMETERS);
 
-        QuantityLength eighth =
+        QuantityLength f =
                 new QuantityLength(1.0, LengthUnit.INCHES);
 
-        System.out.println(
-                "Input: add(" + seventh + ", " + eighth + ")"
-        );
-
-        System.out.println(
-                "Output: " + seventh.add(eighth)
-        );
+        System.out.println(e.add(f, LengthUnit.CENTIMETERS));
     }
 }
