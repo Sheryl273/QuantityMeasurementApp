@@ -1,28 +1,33 @@
 package com.apps.quantitymeasurement;
 
-public class QuantityMeasurementApp6 {
+public enum LengthUnit {
 
-    public enum LengthUnit {
+    FEET(1.0),
+    INCHES(1.0 / 12.0),
+    YARDS(3.0),
+    CENTIMETERS(1.0 / 30.48);
 
-        FEET(12.0),
-        INCHES(1.0),
-        YARDS(36.0),
-        CENTIMETERS(0.393701);
+    private final double toFeetFactor;
 
-        private final double toInchesFactor;
-
-        LengthUnit(double toInchesFactor) {
-            this.toInchesFactor = toInchesFactor;
-        }
-
-        public double toBase(double value) {
-            return value * toInchesFactor;
-        }
-
-        public double fromBase(double baseValue) {
-            return baseValue / toInchesFactor;
-        }
+    LengthUnit(double toFeetFactor) {
+        this.toFeetFactor = toFeetFactor;
     }
+
+    public double convertToBaseUnit(double value) {
+        return value * toFeetFactor;
+    }
+
+    public double convertFromBaseUnit(double baseValue) {
+        return baseValue / toFeetFactor;
+    }
+
+    public double getConversionFactor() {
+        return toFeetFactor;
+    }
+}
+
+/* Main App */
+public class QuantityMeasurementApp8 {
 
     public static class QuantityLength {
 
@@ -50,8 +55,8 @@ public class QuantityMeasurementApp6 {
             return unit;
         }
 
-        private double inBaseUnit() {
-            return unit.toBase(value);
+        private double inFeet() {
+            return unit.convertToBaseUnit(value);
         }
 
         public QuantityLength convertTo(LengthUnit targetUnit) {
@@ -60,23 +65,15 @@ public class QuantityMeasurementApp6 {
                 throw new IllegalArgumentException("Target unit cannot be null");
 
             double converted =
-                    targetUnit.fromBase(this.inBaseUnit());
+                    targetUnit.convertFromBaseUnit(
+                            this.inFeet()
+                    );
 
             return new QuantityLength(converted, targetUnit);
         }
 
         public QuantityLength add(QuantityLength other) {
-
-            if (other == null)
-                throw new IllegalArgumentException("Second operand cannot be null");
-
-            double totalBase =
-                    this.inBaseUnit() + other.inBaseUnit();
-
-            double resultValue =
-                    this.unit.fromBase(totalBase);
-
-            return new QuantityLength(resultValue, this.unit);
+            return add(other, this.unit);
         }
 
         public QuantityLength add(
@@ -89,13 +86,13 @@ public class QuantityMeasurementApp6 {
             if (targetUnit == null)
                 throw new IllegalArgumentException("Target unit cannot be null");
 
-            double totalBase =
-                    this.inBaseUnit() + other.inBaseUnit();
+            double totalFeet =
+                    this.inFeet() + other.inFeet();
 
-            double resultValue =
-                    targetUnit.fromBase(totalBase);
+            double result =
+                    targetUnit.convertFromBaseUnit(totalFeet);
 
-            return new QuantityLength(resultValue, targetUnit);
+            return new QuantityLength(result, targetUnit);
         }
 
         @Override
@@ -110,7 +107,7 @@ public class QuantityMeasurementApp6 {
             QuantityLength other = (QuantityLength) obj;
 
             return Math.abs(
-                    this.inBaseUnit() - other.inBaseUnit()
+                    this.inFeet() - other.inFeet()
             ) < EPSILON;
         }
 
@@ -128,27 +125,16 @@ public class QuantityMeasurementApp6 {
         QuantityLength second =
                 new QuantityLength(12.0, LengthUnit.INCHES);
 
-        System.out.println(
-                "Input: add(" + first + ", " + second + ")"
-        );
-
-        System.out.println(
-                "Output: " + first.add(second)
-        );
+        System.out.println(first.convertTo(LengthUnit.INCHES));
+        System.out.println(first.add(second, LengthUnit.FEET));
 
         QuantityLength third =
-                new QuantityLength(12.0, LengthUnit.INCHES);
+                new QuantityLength(36.0, LengthUnit.INCHES);
 
         QuantityLength fourth =
-                new QuantityLength(1.0, LengthUnit.FEET);
+                new QuantityLength(1.0, LengthUnit.YARDS);
 
-        System.out.println(
-                "Input: add(" + third + ", " + fourth + ")"
-        );
-
-        System.out.println(
-                "Output: " + third.add(fourth)
-        );
+        System.out.println(third.equals(fourth));
 
         QuantityLength fifth =
                 new QuantityLength(1.0, LengthUnit.YARDS);
@@ -156,26 +142,19 @@ public class QuantityMeasurementApp6 {
         QuantityLength sixth =
                 new QuantityLength(3.0, LengthUnit.FEET);
 
-        System.out.println(
-                "Input: add(" + fifth + ", " + sixth + ")"
-        );
-
-        System.out.println(
-                "Output: " + fifth.add(sixth)
-        );
+        System.out.println(fifth.add(sixth, LengthUnit.YARDS));
 
         QuantityLength seventh =
                 new QuantityLength(2.54, LengthUnit.CENTIMETERS);
 
-        QuantityLength eighth =
-                new QuantityLength(1.0, LengthUnit.INCHES);
+        System.out.println(seventh.convertTo(LengthUnit.INCHES));
 
         System.out.println(
-                "Input: add(" + seventh + ", " + eighth + ")"
+                LengthUnit.FEET.convertToBaseUnit(12.0)
         );
 
         System.out.println(
-                "Output: " + seventh.add(eighth)
+                LengthUnit.INCHES.convertToBaseUnit(12.0)
         );
     }
 }
